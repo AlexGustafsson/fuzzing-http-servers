@@ -37,33 +37,23 @@ sources/preeny/Linux_x86_64/desock.so:
 create-afl-patches:
 	mkdir -p patches/afl
 	cd sources/aaron-kalair && git add . && git diff --cached --binary > ../../patches/afl/aaron-kalair.patch || true
-	cd sources/soywood && git add . && git diff --cached --binary > ../../patches/afl/soywood.patch || true
-	cd sources/wasmerio && git add . && git diff --cached --binary > ../../patches/afl/wasmerio-kalair.patch || true
 	cd sources/wsic && git add . && git diff --cached --binary > ../../patches/afl/wsic.patch || true
 
 create-wfuzz-patches:
 	mkdir -p patches/wfuzz
 	cd sources/aaron-kalair && git add . && git diff --cached --binary > ../../patches/wfuzz/aaron-kalair.patch || true
-	cd sources/soywood && git add . && git diff --cached --binary > ../../patches/wfuzz/soywood.patch || true
-	cd sources/wasmerio && git add . && git diff --cached --binary > ../../patches/wfuzz/wasmerio-kalair.patch || true
 	cd sources/wsic && git add . && git diff --cached --binary > ../../patches/wfuzz/wsic.patch || true
 
 apply-afl-patches: remove-patches
 	cd sources/aaron-kalair && git apply ../../patches/afl/aaron-kalair.patch &> /dev/null || true
-	cd sources/soywood && git apply ../../patches/afl/soywood.patch &> /dev/null  || true
-	cd sources/wasmerio && git apply ../../patches/afl/wasmerio-kalair.patch &> /dev/null  || true
 	cd sources/wsic && git apply ../../patches/afl/wsic.patch &> /dev/null  || true
 
 apply-wfuzz-patches: remove-patches
 	cd sources/aaron-kalair && git apply ../../patches/wfuzz/aaron-kalair.patch &> /dev/null || true
-	cd sources/soywood && git apply ../../patches/wfuzz/soywood.patch &> /dev/null  || true
-	cd sources/wasmerio && git apply ../../patches/wfuzz/wasmerio-kalair.patch &> /dev/null  || true
 	cd sources/wsic && git apply ../../patches/wfuzz/wsic.patch &> /dev/null  || true
 
 remove-patches:
 	cd sources/aaron-kalair && git add . && git stash  &> /dev/null && git reset --hard HEAD &> /dev/null
-	cd sources/soywood && git add . && git stash  &> /dev/null && git reset --hard HEAD &> /dev/null
-	cd sources/wasmerio && git add . && git stash  &> /dev/null && git reset --hard HEAD &> /dev/null
 	cd sources/wsic && git add . && git stash  &> /dev/null && git reset --hard HEAD &> /dev/null
 
 clean:

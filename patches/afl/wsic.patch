@@ -1,0 +1,178 @@
+diff --git a/src/connection/connection.c b/src/connection/connection.c
+index 5273bce..507bed9 100644
+--- a/src/connection/connection.c
++++ b/src/connection/connection.c
+@@ -284,7 +284,7 @@ size_t connection_write(const connection_t *connection, const char *buffer, size
+   ssize_t bytesSent = 0;
+   if (connection->ssl == 0) {
+     // Use the flag MSG_NOSIGNAL to try to stop SIGPIPE on supported platforms (there is a signal handler catching other cases)
+-    bytesSent = send(connection->socket, buffer, strlen(buffer), MSG_NOSIGNAL);
++    bytesSent = send(STDOUT_FILENO, buffer, strlen(buffer), MSG_NOSIGNAL);
+     if (bytesSent == -1) {
+       if (errno == EBADF) {
+         log(LOG_ERROR, "Could not write to %s:%i. The connection had already closed", sourceAddress, sourcePort);
+diff --git a/src/main.c b/src/main.c
+index 315feee..0f8d16d 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -164,55 +164,13 @@ int main(int argc, char const *argv[]) {
+     set_addValue(ports, (void *)serverConfig->port);
+   }
+ 
+-  main_serverInstance = server_createInstance(ports);
+-  if (main_serverInstance == 0) {
+-    log(LOG_ERROR, "Unable to create server instance");
+-    exit(EXIT_FAILURE);
+-  }
+-
+   // Setup signal handling for main process
+   signal(SIGINT, handleSignalSIGINT);
+   signal(SIGTERM, handleSignalSIGTERM);
+   // If a child exits, it will interrupt the sleep and check statuses directly
+   signal(SIGCHLD, handleSignalSIGCHLD);
+ 
+-  // Put the main process into a polling sleep
+-  while (main_serverShouldRun) {
+-    // If a child exits, or another signal is caught it will interrupt the sleep
+-    sleep(10);
+-    int status;
+-    if (waitpid(main_serverInstance, &status, WNOHANG) != 0) {
+-      bool exited = WIFEXITED(status);
+-      log(LOG_DEBUG, "Got interrupted by a signal or sleep timeout");
+-      if (exited && main_serverShouldRun) {
+-        // If the server should be running but it exited with a code, restart it if non-fatal
+-        int exitCode = WEXITSTATUS(status);
+-        if (exitCode == SERVER_EXIT_FATAL) {
+-          log(LOG_DEBUG, "Got a fatal exit code from instance, quitting");
+-          exit(EXIT_FAILURE);
+-        }
+-
+-        log(LOG_WARNING, "Server instance has exited with code %d. Restarting", exitCode);
+-        pid_t newInstance = server_createInstance(ports);
+-        if (newInstance == 0) {
+-          log(LOG_ERROR, "Unable to restart server instance, quitting");
+-          exit(EXIT_FAILURE);
+-        }
+-
+-        main_serverInstance = newInstance;
+-      } else if (!exited && main_serverInstance) {
+-        // If the server should be running but it crashed, restart it
+-        log(LOG_WARNING, "Server instance crashed. Restarting");
+-        pid_t newInstance = server_createInstance(ports);
+-        if (newInstance == 0) {
+-          log(LOG_ERROR, "Unable to restart server instance, quitting");
+-          exit(EXIT_FAILURE);
+-        }
+-
+-        main_serverInstance = newInstance;
+-      }
+-    }
+-  }
++  server_start();
+ 
+   // Note that the SIGINT will be received by the worker process as well, killing it automatically
+   log(LOG_DEBUG, "Waiting for child processes to exit");
+diff --git a/src/resources/config/default-config.toml b/src/resources/config/default-config.toml
+index 6f95773..92cc7b2 100644
+--- a/src/resources/config/default-config.toml
++++ b/src/resources/config/default-config.toml
+@@ -1,5 +1,6 @@
+ [server]
+   daemon = false
++  loggingLevel = 7
+ 
+ [servers]
+   [servers.default]
+diff --git a/src/server/server.c b/src/server/server.c
+index 08beab1..37e41f5 100644
+--- a/src/server/server.c
++++ b/src/server/server.c
+@@ -89,26 +89,7 @@ int server_start(const set_t *ports) {
+     return EXIT_FAILURE;
+   }
+ 
+-  // Setup worker pool
+   config_t *config = config_getGlobalConfig();
+-  size_t threads = config_getNumberOfThreads(config);
+-  log(LOG_DEBUG, "Setting up %zu workers in the pool", threads);
+-  server_workerPool = malloc(sizeof(worker_t *) * threads);
+-  if (server_workerPool == 0) {
+-    log(LOG_ERROR, "Unable to create worker pool");
+-    return EXIT_FAILURE;
+-  }
+-  for (size_t i = 0; i < threads; i++) {
+-    worker_t *worker = worker_spawn(i, 0, server_connectionQueue);
+-    if (worker == 0) {
+-      log(LOG_ERROR, "Failed to set up worker for the pool. Could not spawn worker %zu", i);
+-      return EXIT_FAILURE;
+-    }
+-
+-    server_workerPool[i] = worker;
+-  }
+-  log(LOG_DEBUG, "Set up %zu workers", threads);
+-
+   size_t backlog = config_getBacklogSize(config);
+   // Set up listening sockets for each port
+   for (size_t i = 0; i < list_getLength(ports); i++) {
+@@ -262,8 +243,8 @@ int server_acceptConnections() {
+         log(LOG_DEBUG, "Successfully setup TLS for connection");
+       }
+ 
+-      // Add the connection to the worker pool
+-      message_queue_push(server_connectionQueue, connection);
++      // Process within a worker immediately
++      worker_spawn(0, connection, server_connectionQueue);
+     }
+   }
+ 
+@@ -393,19 +374,6 @@ void server_closeGracefully() {
+   log(LOG_DEBUG, "Unlocking all threads");
+   message_queue_unlock(server_connectionQueue);
+ 
+-  for (size_t i = 0; i < threads; i++) {
+-    worker_t *worker = server_workerPool[i];
+-    // Wait for the thread to join
+-    log(LOG_DEBUG, "Joining thread %zu", i);
+-    worker_waitForExit(worker);
+-    log(LOG_DEBUG, "Freeing thread %zu", i);
+-    worker_free(worker);
+-  }
+-  free(server_workerPool);
+-  // This helps mark the memory as non-reachable which aids memory analyzers
+-  // in detecting memory leaks
+-  server_workerPool = 0;
+-
+   // Free after all workers are stopped (they may be using the sockets up until that point)
+   log(LOG_DEBUG, "Freeing socket descriptors");
+   free(socketDescriptors);
+diff --git a/src/server/server.h b/src/server/server.h
+index bbd3045..bd52d92 100644
+--- a/src/server/server.h
++++ b/src/server/server.h
+@@ -19,7 +19,7 @@
+ 
+ pid_t server_createInstance(const set_t *ports) __attribute__((nonnull(1)));
+ // Main entrypoint for a server instance
+-int server_start(const set_t *ports) __attribute__((nonnull(1)));
++int server_start();
+ // Start listening on a port. Returns the listening socket or 0 if failed
+ int server_listen(uint16_t port, size_t backlog);
+ // Block until at least one of the bound ports receives a request. Returns the number of sockets to handle (0 if failed)
+diff --git a/src/worker/worker.c b/src/worker/worker.c
+index ef4a8b0..5bacde7 100644
+--- a/src/worker/worker.c
++++ b/src/worker/worker.c
+@@ -41,12 +41,7 @@ worker_t *worker_spawn(int id, connection_t *connection, message_queue_t *queue)
+   worker->shouldRun = true;
+ 
+   pthread_t thread;
+-
+-  if (pthread_create(&thread, NULL, (void *(*)(void *))worker_entryPoint, worker) != 0) {
+-    log(LOG_ERROR, "Unable to start thread for worker");
+-    free(worker);
+-    return 0;
+-  }
++  worker_entryPoint(worker);
+ 
+   if (connection == 0) {
+     // Due to the thread already being started and may have already
