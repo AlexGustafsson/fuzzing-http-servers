@@ -10,3 +10,6 @@
 [submodule "sources/wasmerio"]
 	path = sources/wasmerio
 	url = https://github.com/wasmerio/c-http-server.git
+[submodule "sources/AFL"]
+	path = sources/AFL
+	url = https://github.com/google/AFL.git

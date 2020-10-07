@@ -8,12 +8,18 @@ all: build
 # Build sources
 build: sources/aaron-kalair/server
 
-sources/aaron-kalair/server:
-	$(MAKE) ./sources/aaron-kalair/makefile server
-
 init:
-	git submodule init sources/aaron-kalair sources/soywood sources/wasmerio sources/wsic
+	git submodule init sources/aaron-kalair sources/soywood sources/wasmerio sources/wsic sources/AFL
 	$(MAKE) apply-patches
+
+sources/AFL/afl-g++:
+	AFL_CC=gcc AFL_CXX=g++ $(MAKE) -C ./sources/AFL afl-g++
+
+sources/AFL/afl-gcc:
+	AFL_CC=gcc AFL_CXX=g++ $(MAKE) -C ./sources/AFL afl-gcc
+
+sources/aaron-kalair/server: sources/AFL/afl-gcc
+	AFL_CC=gcc AFL_CXX=g++ AFL_HARDEN=1 CC=$(PWD)/sources/AFL/afl-gcc $(MAKE) -C ./sources/aaron-kalair server
 
 apply-patches:
 	cd sources/aaron-kalair && git apply --stat ../../patches/aaron-kalair.patch || true

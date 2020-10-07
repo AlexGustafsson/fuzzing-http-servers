@@ -11,6 +11,9 @@ make init
 
 Other commands:
 ```bash
+# Build AFL
+make afl
+
 # Create patches from altered sources
 make create-patches
 
