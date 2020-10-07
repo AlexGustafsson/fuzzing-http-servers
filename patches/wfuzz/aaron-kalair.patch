@@ -1,5 +1,5 @@
 diff --git a/.gitignore b/.gitignore
-index a7586d1..8a8dbe7 100644
+index a7586d1..2d68232 100644
 --- a/.gitignore
 +++ b/.gitignore
 @@ -4,4 +4,4 @@ server
@@ -7,7 +7,7 @@ index a7586d1..8a8dbe7 100644
  *~
  
 -
-+*.dSYM
++server.dSYM
 diff --git a/makefile b/makefile
 index 1ec3e9a..e19c52c 100644
 --- a/makefile
@@ -17,7 +17,7 @@ index 1ec3e9a..e19c52c 100644
 -	gcc server.c -lrt -o server
 +	$(CC) server.c -o server
 diff --git a/server.c b/server.c
-index 448edc0..f247f90 100644
+index 448edc0..35aee2c 100644
 --- a/server.c
 +++ b/server.c
 @@ -13,7 +13,7 @@
@@ -410,93 +410,87 @@ index 448edc0..f247f90 100644
      // Sizes of data were sending out
      int headersize;
      int pagesize;
-@@ -392,67 +392,27 @@ int main(int argc, char *argv[]) {
+@@ -392,67 +392,67 @@ int main(int argc, char *argv[]) {
      int children = 0;
      // Variable to store the ID of the process we get when we spawn
      pid_t pid;
 -    
--    // Loop infinitly serving requests
--    while(1)
--    {
++
+     // Loop infinitly serving requests
+     while(1)
+     {
 -    
--        // If we haven't already spawned 10 children fork
--        if( children <= 10)
--        {
--            pid = fork();
--            children++;
--        }
++
+         // If we haven't already spawned 10 children fork
+         if( children <= 10)
+         {
+             pid = fork();
+             children++;
+         }
 -        
--        // If the pid is -1 the fork failed so handle that
--        if( pid == -1)
--        {
--            fprintf(stderr,"can't fork, error %d\n" , errno);
--            exit (1);
--        }
++
+         // If the pid is -1 the fork failed so handle that
+         if( pid == -1)
+         {
+             fprintf(stderr,"can't fork, error %d\n" , errno);
+             exit (1);
+         }
 -        
--        // Have the child process deal with the connection
--        if ( pid == 0)
++
+         // Have the child process deal with the connection
+         if ( pid == 0)
 -        {	
--            // Have the child loop infinetly dealing with a connection then getting the next one in the queue
--            while(1)
--            {
--                // Accept a connection
--                conn_s = accept(list_s, (struct sockaddr *)&servaddr, &addr_size);
++        {
+             // Have the child loop infinetly dealing with a connection then getting the next one in the queue
+             while(1)
+             {
+                 // Accept a connection
+                 conn_s = accept(list_s, (struct sockaddr *)&servaddr, &addr_size);
 -                    
--                // If something went wrong with accepting the connection deal with it
--                if(conn_s == -1)
--                {
--                    fprintf(stderr,"Error accepting connection \n");
--                    exit (1);
--                }
++
+                 // If something went wrong with accepting the connection deal with it
+                 if(conn_s == -1)
+                 {
+                     fprintf(stderr,"Error accepting connection \n");
+                     exit (1);
+                 }
 -                
--                // Get the message from the file descriptor
--                char * header = getMessage(conn_s);
++
+                 // Get the message from the file descriptor
+                 char * header = getMessage(conn_s);
 -                
--                // Parse the request
--                httpRequest details = parseRequest(header);
++
+                 // Parse the request
+                 httpRequest details = parseRequest(header);
 -                
--                // Free header now were done with it
--                free(header);
++
+                 // Free header now were done with it
+                 free(header);
 -                
--                // Print out the correct header
--                headersize = printHeader(conn_s, details.returncode);
++
+                 // Print out the correct header
+                 headersize = printHeader(conn_s, details.returncode);
 -                
--                // Print out the file they wanted
--                pagesize = printFile(conn_s, details.filename);
++
+                 // Print out the file they wanted
+                 pagesize = printFile(conn_s, details.filename);
 -                
--                // Increment our count of total datasent by all processes and get back the new total
--                totaldata = recordTotalBytes(headersize+pagesize, mempointer);
++
+                 // Increment our count of total datasent by all processes and get back the new total
+                 totaldata = recordTotalBytes(headersize+pagesize, mempointer);
 -                
--                // Print out which process handled the request and how much data was sent
++
+                 // Print out which process handled the request and how much data was sent
 -                printf("Process %d served a request of %d bytes. Total bytes sent %d  \n", getpid(), headersize+pagesize, totaldata);	
 -                
--                // Close the connection now were done
--                close(conn_s);
--            }
--        }
--    }
++                printf("Process %d served a request of %d bytes. Total bytes sent %d  \n", getpid(), headersize+pagesize, totaldata);
++
+                 // Close the connection now were done
+                 close(conn_s);
+             }
+         }
+     }
 -    
-+
-+		// Get the message from the standard input
-+		char * header = getMessage(STDIN_FILENO);
-+
-+		// Parse the request
-+		httpRequest details = parseRequest(header);
-+
-+		// Free header now were done with it
-+		free(header);
-+
-+		// Print out the correct header
-+		headersize = printHeader(conn_s, details.returncode);
-+
-+		// Print out the file they wanted
-+		pagesize = printFile(conn_s, details.filename);
-+
-+		// Increment our count of total datasent by all processes and get back the new total
-+		totaldata = recordTotalBytes(headersize+pagesize, mempointer);
-+
-+		// Print out which process handled the request and how much data was sent
-+		printf("Process %d served a request of %d bytes. Total bytes sent %d  \n", getpid(), headersize+pagesize, totaldata);
 +
      return EXIT_SUCCESS;
  }
