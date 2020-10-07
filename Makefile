@@ -28,6 +28,12 @@ sources/AFL/afl-gcc:
 sources/aaron-kalair/server: sources/AFL/afl-gcc
 	$(BUILD_FLAGS) $(MAKE) -C ./sources/aaron-kalair server
 
+sources/wsic/build/wsic: sources/AFL/afl-gcc
+	$(BUILD_FLAGS) $(MAKE) -C ./sources/wsic build
+
+sources/preeny/Linux_x86_64/desock.so:
+	$(MAKE) -C ./sources/preeny
+
 create-afl-patches:
 	mkdir -p patches/afl
 	cd sources/aaron-kalair && git add . && git diff --cached --binary > ../../patches/afl/aaron-kalair.patch || true
@@ -62,3 +68,4 @@ remove-patches:
 
 clean:
 	rm sources/aaron-kalair/server &> /dev/null || true
+	rm -r sources/wsic/build &> /dev/null || true

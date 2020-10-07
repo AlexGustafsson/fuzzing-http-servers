@@ -13,3 +13,6 @@
 [submodule "sources/AFL"]
 	path = sources/AFL
 	url = https://github.com/google/AFL.git
+[submodule "sources/preeny"]
+	path = sources/preeny
+	url = https://github.com/zardus/preeny.git
