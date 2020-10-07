@@ -1,0 +1,8 @@
+GET /index.html HTTP/1.1
+User-Agent: https://user-agents.net/string/mozilla-5-0-linux-android-8-0-0-lld-l31-build-honorlld-l31-wv-applewebkit-537-36-khtml-like-gecko-version-4-0-chrome-78-0-3904-96-mobile-safari-537-36-gsa-10-82-8-21-arm64
+Host: www.google.se
+Content-Type: application/x-www-form-urlencoded
+Content-Length: length
+Accept-Language: en-us
+Accept-Encoding: gzip, deflate
+Connection: Keep-Alive
