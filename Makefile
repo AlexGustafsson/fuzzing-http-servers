@@ -25,6 +25,9 @@ init:
 afl:
 	AFL_CC=gcc AFL_CXX=g++ $(MAKE) -C ./sources/AFL
 
+preeny:
+	$(MAKE) -C ./sources/preeny
+
 sources/aaron-kalair/server:
 	$(BUILD_FLAGS) $(MAKE) -C ./sources/aaron-kalair server
 

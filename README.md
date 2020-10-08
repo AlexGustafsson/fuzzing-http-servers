@@ -15,11 +15,13 @@ Requirements:
 * libcurl4-openssl-dev
 * libssl-dev
 * python3-pip
+* libini-config-dev
+* libseccomp-dev
 
 These can be installed on said Ubuntu by running:
 
 ```
-sudo apt update && apt install build-essential git python3-pip libcurl4-openssl-dev libssl-dev && sudo python3 -m pip install wfuzz
+sudo apt update && apt install build-essential git python3-pip libcurl4-openssl-dev libssl-dev libini-config-dev libseccomp-dev && sudo python3 -m pip install wfuzz
 ```
 
 On Ubuntu you'll also need to do the following to use AFL:
