@@ -56,6 +56,12 @@ Apply the correct patches.
 make apply-afl-patches
 ```
 
+Build preeny.
+
+```bash
+make preeny
+```
+
 Build one of the servers.
 
 ```bash

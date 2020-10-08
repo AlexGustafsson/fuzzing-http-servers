@@ -15,7 +15,4 @@
 	url = https://github.com/google/AFL.git
 [submodule "sources/preeny"]
 	path = sources/preeny
-	# Original version:
-	# url = https://github.com/zardus/preeny.git
-	# Patched version:
-	url = https://github.com/acidghost/preeny
+	url = https://github.com/zardus/preeny.git
