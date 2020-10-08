@@ -22,6 +22,13 @@ These can be installed on said Ubuntu by running:
 sudo apt update && apt install build-essential git python3-pip libcurl4-openssl-dev libssl-dev && sudo python3 -m pip install wfuzz
 ```
 
+On Ubuntu you'll also need to do the following to use AFL:
+
+```bash
+sudo -i
+echo core > /proc/sys/kernel/core_pattern
+```
+
 ### Cloning the code
 
 ```bash
