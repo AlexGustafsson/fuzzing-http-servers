@@ -12,7 +12,7 @@ endif
 # Don't run in parallel
 .NOTPARALLEL:
 
-.PHONY: all build clean afl
+.PHONY: all build clean afl preeny
 
 all: build
 
