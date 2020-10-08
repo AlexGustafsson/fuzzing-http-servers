@@ -9,6 +9,9 @@ else
 BUILD_FLAGS :=
 endif
 
+# Don't run in parallel
+.NOTPARALLEL:
+
 .PHONY: all build clean afl
 
 all: build
@@ -46,8 +49,8 @@ apply-afl-patches: remove-patches
 	cd sources/wsic && git apply ../../patches/afl/wsic.patch &> /dev/null  || true
 
 apply-wfuzz-patches: remove-patches
-	cd sources/aaron-kalair && git apply ../../patches/wfuzz/aaron-kalair.patch &> /dev/null || true
-	cd sources/wsic && git apply ../../patches/wfuzz/wsic.patch &> /dev/null  || true
+	cd sources/aaron-kalair && git apply --ignore-space-change --ignore-whitespace ../../patches/wfuzz/aaron-kalair.patch || true
+	cd sources/wsic && git apply --ignore-space-change --ignore-whitespace ../../patches/wfuzz/wsic.patch  || true
 
 remove-patches:
 	cd sources/aaron-kalair && git add . && git stash  &> /dev/null && git reset --hard HEAD &> /dev/null

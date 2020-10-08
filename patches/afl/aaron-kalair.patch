@@ -9,13 +9,13 @@ index a7586d1..59a947b 100644
 -
 +server.DSYM
 diff --git a/makefile b/makefile
-index 1ec3e9a..e19c52c 100644
+index 1ec3e9a..71add07 100644
 --- a/makefile
 +++ b/makefile
 @@ -1,2 +1,2 @@
  server : server.c
 -	gcc server.c -lrt -o server
-+	$(CC) server.c -o server
++	$(CC) server.c -lrt -o server
 diff --git a/server.c b/server.c
 index 448edc0..2668bb6 100644
 --- a/server.c
