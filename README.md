@@ -89,7 +89,20 @@ Build one of the servers.
 make USE_AFL=0 sources/aaron-kalair/server
 ```
 
+Start the server.
+
+```bash
+./sources/aaron-kalair/server
+```
+
 Start fuzzing.
+
+```bash
+# Verb fuzzing
+wfuzz -z list,GET-HEAD-POST-TRACE-OPTIONS -X FUZZ http://localhost/
+# Fuzzing using a (non-included) list of words
+wfuzz -w words.txt http://localhost/FUZZ
+```
 
 ### Creating, applying and removing patches
 
