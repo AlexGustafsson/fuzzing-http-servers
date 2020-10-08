@@ -19,10 +19,8 @@ build: sources/aaron-kalair/server
 init:
 	git submodule update --init
 
-afl: sources/AFL/afl-gcc
-
-sources/AFL/afl-gcc:
-	AFL_CC=gcc AFL_CXX=g++ $(MAKE) -C ./sources/AFL afl-gcc
+afl:
+	AFL_CC=gcc AFL_CXX=g++ $(MAKE) -C ./sources/AFL
 
 sources/aaron-kalair/server:
 	$(BUILD_FLAGS) $(MAKE) -C ./sources/aaron-kalair server
