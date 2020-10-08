@@ -26,14 +26,13 @@ afl:
 	AFL_CC=gcc AFL_CXX=g++ $(MAKE) -C ./sources/AFL
 
 preeny:
-	cd sources/preeny && git apply ../../patches/afl/preeny.patch &> /dev/null || true
-	$(MAKE) -C ./sources/preeny
+	$(MAKE) -C ./sources/preeny/src desock.so
 
 sources/aaron-kalair/server:
 	$(BUILD_FLAGS) $(MAKE) -C ./sources/aaron-kalair server
 
 sources/wsic/build/wsic:
-	$(BUILD_FLAGS) $(MAKE) -C ./sources/wsic build
+	LD_PRELOAD="$(PWD)/sources/preeny/src/desock.so" $(BUILD_FLAGS) $(MAKE) -C ./sources/wsic build
 
 create-afl-patches:
 	mkdir -p patches/afl
