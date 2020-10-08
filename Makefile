@@ -32,7 +32,8 @@ sources/aaron-kalair/server:
 	$(BUILD_FLAGS) $(MAKE) -C ./sources/aaron-kalair server
 
 sources/wsic/build/wsic:
-	LD_PRELOAD="$(PWD)/sources/preeny/src/desock.so" $(BUILD_FLAGS) $(MAKE) -C ./sources/wsic build
+	# LD_PRELOAD="$(PWD)/sources/preeny/src/desock.so"
+	$(BUILD_FLAGS) $(MAKE) -C ./sources/wsic build
 
 create-afl-patches:
 	mkdir -p patches/afl
