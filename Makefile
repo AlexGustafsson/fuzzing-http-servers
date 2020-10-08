@@ -17,7 +17,7 @@ all: build
 build: sources/aaron-kalair/server
 
 init:
-	git submodule init sources/aaron-kalair sources/soywood sources/wasmerio sources/wsic sources/AFL
+	git submodule init sources/aaron-kalair sources/wsic sources/AFL
 
 afl: sources/AFL/afl-g++ sources/AFL/afl-gcc
 
