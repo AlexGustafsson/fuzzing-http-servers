@@ -17,12 +17,9 @@ all: build
 build: sources/aaron-kalair/server
 
 init:
-	git submodule init sources/aaron-kalair sources/wsic sources/AFL
+	git submodule update --init
 
-afl: sources/AFL/afl-g++ sources/AFL/afl-gcc
-
-sources/AFL/afl-g++:
-	AFL_CC=gcc AFL_CXX=g++ $(MAKE) -C ./sources/AFL afl-g++
+afl: sources/AFL/afl-gcc
 
 sources/AFL/afl-gcc:
 	AFL_CC=gcc AFL_CXX=g++ $(MAKE) -C ./sources/AFL afl-gcc
