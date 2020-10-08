@@ -9,7 +9,7 @@ else
 BUILD_FLAGS :=
 endif
 
-.PHONY: all build clean
+.PHONY: all build clean afl
 
 all: build
 
@@ -19,16 +19,18 @@ build: sources/aaron-kalair/server
 init:
 	git submodule init sources/aaron-kalair sources/soywood sources/wasmerio sources/wsic sources/AFL
 
+afl: sources/AFL/afl-g++ sources/AFL/afl-gcc
+
 sources/AFL/afl-g++:
 	AFL_CC=gcc AFL_CXX=g++ $(MAKE) -C ./sources/AFL afl-g++
 
 sources/AFL/afl-gcc:
 	AFL_CC=gcc AFL_CXX=g++ $(MAKE) -C ./sources/AFL afl-gcc
 
-sources/aaron-kalair/server: sources/AFL/afl-gcc
+sources/aaron-kalair/server:
 	$(BUILD_FLAGS) $(MAKE) -C ./sources/aaron-kalair server
 
-sources/wsic/build/wsic: sources/AFL/afl-gcc
+sources/wsic/build/wsic:
 	$(BUILD_FLAGS) $(MAKE) -C ./sources/wsic build
 
 sources/preeny/Linux_x86_64/desock.so:
