@@ -46,15 +46,15 @@ create-wfuzz-patches:
 
 apply-afl-patches: remove-patches
 	cd sources/aaron-kalair && git apply ../../patches/afl/aaron-kalair.patch &> /dev/null || true
-	cd sources/wsic && git apply ../../patches/afl/wsic.patch &> /dev/null  || true
+	cd sources/wsic && git apply ../../patches/afl/wsic.patch &> /dev/null || true
 
 apply-wfuzz-patches: remove-patches
 	cd sources/aaron-kalair && git apply --ignore-space-change --ignore-whitespace ../../patches/wfuzz/aaron-kalair.patch || true
-	cd sources/wsic && git apply --ignore-space-change --ignore-whitespace ../../patches/wfuzz/wsic.patch  || true
+	cd sources/wsic && git apply --ignore-space-change --ignore-whitespace ../../patches/wfuzz/wsic.patch || true
 
 remove-patches:
-	cd sources/aaron-kalair && git add . && git stash  &> /dev/null && git reset --hard HEAD &> /dev/null
-	cd sources/wsic && git add . && git stash  &> /dev/null && git reset --hard HEAD &> /dev/null
+	cd sources/aaron-kalair && git add . && git stash &> /dev/null && git reset --hard HEAD &> /dev/null
+	cd sources/wsic && git add . && git stash &> /dev/null && git reset --hard HEAD &> /dev/null
 
 clean:
 	rm sources/aaron-kalair/server &> /dev/null || true
